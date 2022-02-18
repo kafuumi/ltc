@@ -1,4 +1,7 @@
 # LrcToSrt
+
+[![Build](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml)
+
 用于将LRC歌词文件转换成SRT字幕文件
 
 ## 功能

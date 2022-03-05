@@ -9,12 +9,19 @@ import (
 	"os"
 )
 
+/**
+从QQ音乐上获取歌词
+*/
+
+// QQLyric qq音乐获取歌词接口返回的数据结构
 type QQLyric struct {
-	RetCode int    `json:"retcode"`
-	Code    int    `json:"code"`
-	SubCode int    `json:"subcode"`
-	Lyric   string `json:"lyric"`
-	Trans   string `json:"trans"`
+	RetCode int `json:"retcode"`
+	Code    int `json:"code"`
+	SubCode int `json:"subcode"`
+	//Lyric 原文歌词
+	Lyric string `json:"lyric"`
+	//Trans 译文歌词
+	Trans string `json:"trans"`
 }
 
 func GetQQLyric(id string) (lyric, tLyric string) {

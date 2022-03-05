@@ -36,7 +36,9 @@ func ReadFile(name string) string {
 		fmt.Printf("打开文件失败：%v\n", err)
 		os.Exit(1)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	data, err := io.ReadAll(file)
 	if err != nil {
 		fmt.Printf("读取文件失败：%v\n", err)
@@ -46,12 +48,14 @@ func ReadFile(name string) string {
 }
 
 func WriteFile(name string, data string) {
-	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	file, err := os.Create(name)
 	if err != nil {
-		fmt.Printf("保存文件失败：%v\n", err)
+		fmt.Printf("创建结果文件失败：%v\n", err)
 		os.Exit(1)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	nw, err := file.WriteString(data)
 	if err != nil || nw < len(data) {
 		fmt.Printf("保存文件失败：%v\n", err)

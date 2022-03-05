@@ -1,0 +1,16 @@
+encoding=utf-8
+
+example#1 从网易云上下载歌词
+lts -i 1903635166 传说的世界.srt
+
+example#2 从qq音乐上下载歌词
+lts -i 003eKeNV0t8IVi -s qq "bad guy.srt"
+
+example#3 从网易云上下载歌词,不解析
+lts -i 1903635166 -d 传说的世界.lrc
+
+example#4 解析已有的lrc文件
+lts -I 传说的世界.lrc 传说的世界2.srt
+
+example#5 设置mode为2，原文在上，译文在下
+lts -i 003eKeNV0t8IVi -s qq -m 2 "bad guy2.srt"

@@ -87,6 +87,6 @@ fabric.properties
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-
-*.bat
+/example/*.srt
+/example/*.lrc
 /temp

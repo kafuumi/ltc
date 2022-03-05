@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ type Option struct {
 
 const (
 	// VERSION 当前版本
-	VERSION = `"0.1.0" (build 2022.02.18)`
+	VERSION = `"0.1.1" (build 2022.03.05)`
 )
 
 var (
@@ -68,7 +69,7 @@ func main() {
 		opt.Output = args[0]
 	}
 
-	//获取歌词
+	//获取歌词，lyric为原文歌词，tranLyric为译文歌词
 	var lyric, tranLyric string
 	if opt.Id != "" {
 		if opt.Source != "163" {
@@ -107,7 +108,7 @@ func main() {
 		fmt.Println("Error: 请指定需要转换的歌词。")
 		os.Exit(1)
 	}
-
+	//原文和译文作为两条歌词流信息分开保存，但最终生成的srt文件会同时包含两个信息
 	lyricSRT, tranLyricSRT := Lrc2Srt(lyric), Lrc2Srt(tranLyric)
 	SaveSRT(lyricSRT, tranLyricSRT, opt.Output)
 }
@@ -117,6 +118,8 @@ func SaveSRT(srt *SRT, tranSrt *SRT, name string) {
 	if tranSrt == nil {
 		//没有译文时，用一个空的对象的代替，减少nil判断
 		tranSrt = &SRT{Content: make([]*SRTContent, 0)}
+		//因为没有译文，所以mode选项无效，设为2之后，后面不用做多余判断
+		opt.Mode = 2
 	}
 	//处理结果文件的文件名
 	if name == "" {
@@ -138,40 +141,45 @@ func SaveSRT(srt *SRT, tranSrt *SRT, name string) {
 		name += ".srt"
 	}
 
-	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	file, err := os.Create(name)
 	if err != nil {
-		fmt.Printf("保存结果失败：%v\n", err)
+		fmt.Printf("创建结果文件失败：%v\n", err)
 		os.Exit(1)
 	}
-	defer file.Close()
-	writer := bufio.NewWriter(file)
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
+	//6KB的缓存区，大部分歌词生成的SRT文件均在4-6kb左右
+	writer := bufio.NewWriterSize(file, 1024*6)
 
+	/*
+		原文和译文歌词的排列方式，因为原文歌词中可能包含一些非歌词信息，
+		例如作词者，作曲者等，而在译文歌词中却可能不包含这些
+	*/
+	//srt的序号
 	index := 1
 	switch opt.Mode {
 	case 1:
-		//译文和原文交错排列
-		_len, _lent, size := len(srt.Content), len(tranSrt.Content), 0
-		if _len > _lent {
-			size = 2 * _len
-		} else {
-			size = 2 * _lent
+		//将两个歌词合并成一个新的数组
+		size := len(srt.Content) + len(tranSrt.Content)
+		temp := make([]*SRTContent, size, size)
+		i := 0
+		for _, v := range srt.Content {
+			temp[i] = v
+			i++
 		}
-		//临时缓冲区，偶数索引存原文，奇数存译文
-		buf := make([]*SRTContent, size, size)
-		for i, item := range srt.Content {
-			buf[2*i] = item
+		for _, v := range tranSrt.Content {
+			temp[i] = v
+			i++
 		}
-		for i, item := range tranSrt.Content {
-			buf[2*i+1] = item
-		}
-
+		//按开始时间进行排序，使用SliceStable确保一句歌词的原文在译文之前
+		sort.SliceStable(temp, func(i, j int) bool {
+			return temp[i].Start < temp[j].Start
+		})
 		//写入文件
-		for _, item := range buf {
-			if item != nil {
-				item.Index = index
-				_, _ = writer.WriteString(item.String())
-				index++
-			}
+		for i, v := range temp {
+			v.Index = i + 1
+			_, _ = writer.WriteString(v.String())
 		}
 	case 2:
 		//原文在上，译文在下
@@ -202,9 +210,9 @@ func SaveSRT(srt *SRT, tranSrt *SRT, name string) {
 	err = writer.Flush()
 	if err != nil {
 		fmt.Printf("保存结果失败：%v\n", err)
-		os.Exit(1)
+	} else {
+		fmt.Printf("转换文件完成，保存结果为：%s\n", name)
 	}
-	fmt.Printf("转换文件完成，保存结果为：%s\n", name)
 }
 
 // Lrc2Srt 将原始个LRC字符串歌词解析SRT对象

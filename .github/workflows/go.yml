@@ -34,7 +34,7 @@ jobs:
           check-latest: true
 
       - name: Test
-        run: go test -run=Test .
+        run: go test -run=Test
 
       - name: Benchmark
-        run: go test -bench=Benchmark -benchmem .
+        run: go test -bench=Benchmark -benchmem

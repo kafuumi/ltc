@@ -6,7 +6,6 @@ import (
 	"github.com/Hami-Lemon/lrc2srt/glist"
 	"io"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -109,27 +108,44 @@ func (s *SRT) Merge(other *SRT, mode SRTMergeMode) {
 	}
 }
 
-//todo 改进算法,现在的算法太慢了
+//可以类比为合并两个有序链表,
+//算法参考:https://leetcode-cn.com/problems/merge-two-sorted-lists/solution/he-bing-liang-ge-you-xu-lian-biao-by-leetcode-solu/
 func (s *SRT) mergeStack(other *SRT) {
-	size := s.Content.Size() + other.Content.Size()
-	temp := make([]*SRTContent, size, size)
-	index := 0
-	for it := s.Content.Iterator(); it.Has(); {
-		temp[index] = it.Next()
-		index++
+	ls, _ := s.Content.(*glist.LinkedList[*SRTContent])
+	lo, _ := other.Content.(*glist.LinkedList[*SRTContent])
+	lhs, lho := ls.First, lo.First
+	//临时的空结点
+	preHead := &glist.Node[*SRTContent]{}
+	prev := preHead
+
+	for lhs != nil && lho != nil {
+		//副本结点,从而不改变other对象中的内容
+		oCopy := lho.Clone()
+
+		if lhs.Element.Start <= oCopy.Element.Start {
+			prev.Next = lhs
+			lhs.Prev = prev
+			lhs = lhs.Next
+		} else {
+			prev.Next = oCopy
+			oCopy.Prev = prev
+			lho = lho.Next
+		}
+		prev = prev.Next
 	}
-	for it := other.Content.Iterator(); it.Has(); {
-		temp[index] = it.Next()
-		index++
+	if lhs == nil {
+		//如果剩下的内容是other中的,则依次迭代复制到s中
+		for n := lho; n != nil; n = n.Next {
+			c := n.Clone()
+			prev.Next = c
+			c.Prev = prev
+			prev = prev.Next
+		}
+	} else {
+		prev.Next = lhs
 	}
-	sort.SliceStable(temp, func(i, j int) bool {
-		return temp[i].Start < temp[j].Start
-	})
-	list := glist.NewLinkedList[*SRTContent]()
-	for _, v := range temp {
-		list.Append(v)
-	}
-	s.Content = list
+	ls.First = preHead.Next
+	ls.First.Prev = nil
 }
 
 func (s *SRT) mergeUp(other *SRT) {

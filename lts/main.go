@@ -22,7 +22,7 @@ type Option struct {
 
 const (
 	// VERSION 当前版本
-	VERSION = `"0.2.0" (build 2022.03.28)`
+	VERSION = `"0.2.3" (build 2022.03.28)`
 )
 
 var (

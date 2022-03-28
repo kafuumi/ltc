@@ -230,11 +230,24 @@ func (l *LinkedList[E]) PullFront() *E {
 
 // Iterator 获取该链表的迭代器
 func (l *LinkedList[E]) Iterator() Iterator[E] {
-	return &LinkedListIterator[E]{next: l.First}
+	return &LinkedListIterator[E]{
+		reverse: false,
+		next:    l.First,
+	}
+}
+
+// ReverseIterator 获取反向迭代器
+func (l *LinkedList[E]) ReverseIterator() Iterator[E] {
+	return &LinkedListIterator[E]{
+		reverse: true,
+		next:    l.Last,
+	}
 }
 
 type LinkedListIterator[E any] struct {
-	next *Node[E]
+	//是否反向,如果为true,则是从尾部向头部迭代
+	reverse bool
+	next    *Node[E]
 }
 
 func (l *LinkedListIterator[E]) Has() bool {
@@ -246,6 +259,10 @@ func (l *LinkedListIterator[E]) Next() E {
 	if e == nil {
 		panic("iterator is empty.")
 	}
-	l.next = e.Next
+	if l.reverse {
+		l.next = e.Prev
+	} else {
+		l.next = e.Next
+	}
 	return e.Element
 }

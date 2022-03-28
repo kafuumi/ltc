@@ -20,6 +20,8 @@ type List[E any] interface {
 	Set(index uint, element E) bool
 	// Iterator 获取列表的迭代器
 	Iterator() Iterator[E]
+	// ReverseIterator 反向迭代器,从尾部向前迭代
+	ReverseIterator() Iterator[E]
 }
 
 // Queue 队列

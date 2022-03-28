@@ -19,7 +19,7 @@ const (
 )
 
 type SRTContent struct {
-	//序号，从1开始
+	//序号，从1开始,只在写入文件的时候设置这个属性
 	Index int
 	//开始时间，单位毫秒
 	Start int
@@ -73,7 +73,7 @@ func LrcToSrt(lrc *LRC) *SRT {
 	for it := lrc.LrcList.Iterator(); it.Has(); {
 		lrcNode := it.Next()
 		srtContent := &SRTContent{
-			Index: index,
+			Index: 0,
 			Start: lrcNode.time,
 			Text:  lrcNode.content,
 		}
@@ -159,7 +159,9 @@ func (s *SRT) mergeUp(other *SRT) {
 func (s *SRT) mergeBottom(other *SRT) {
 	oq := other.Content
 	if oq.IsNotEmpty() {
-		s.Content.PushFront(*(oq.PullBack()))
+		for it := other.Content.ReverseIterator(); it.Has(); {
+			s.Content.PushFront(it.Next())
+		}
 	}
 }
 
@@ -179,8 +181,12 @@ func (s *SRT) Write(dst io.Writer) error {
 	//6KB的缓冲
 	bufSize := 1024 * 6
 	writer := bufio.NewWriterSize(dst, bufSize)
+	index := 1
 	for it := s.Content.Iterator(); it.Has(); {
-		_, err := writer.WriteString(it.Next().String())
+		content := it.Next()
+		content.Index = index
+		index++
+		_, err := writer.WriteString(content.String())
 		if err != nil {
 			return err
 		}

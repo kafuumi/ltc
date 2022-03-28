@@ -1,4 +1,4 @@
-package main
+package lrc2srt
 
 import "testing"
 
@@ -23,7 +23,7 @@ func TestMillisecond2Time(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotH, gotM, gotS, gotMs := Millisecond2Time(tt.args.millisecond)
+			gotH, gotM, gotS, gotMs := millisecond2Time(tt.args.millisecond)
 			if gotH != tt.wantH {
 				t.Errorf("Millisecond2Time() gotH = %v, want %v", gotH, tt.wantH)
 			}
@@ -60,7 +60,7 @@ func TestTime2Millisecond(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Time2Millisecond(tt.args.m, tt.args.s, tt.args.ms); got != tt.want {
+			if got := time2Millisecond(tt.args.m, tt.args.s, tt.args.ms); got != tt.want {
 				t.Errorf("Time2Millisecond() = %v, want %v", got, tt.want)
 			}
 		})
@@ -69,12 +69,12 @@ func TestTime2Millisecond(t *testing.T) {
 
 func BenchmarkTime2Millisecond(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Time2Millisecond(999, 999, 999)
+		time2Millisecond(999, 999, 999)
 	}
 }
 
 func BenchmarkMillisecond2Time(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Millisecond2Time(9999999999)
+		millisecond2Time(9999999999)
 	}
 }

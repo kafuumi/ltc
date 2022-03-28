@@ -1,13 +1,22 @@
-package main
+package lrc2srt
 
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 )
 
+const (
+	CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.82 Safari/537.36"
+)
+
+var (
+	client = http.Client{}
+)
+
 // Time2Millisecond 根据分，秒，毫秒 计算出对应的毫秒值
-func Time2Millisecond(m, s, ms int) int {
+func time2Millisecond(m, s, ms int) int {
 	t := m*60 + s
 	t *= 1000
 	t += ms
@@ -15,7 +24,7 @@ func Time2Millisecond(m, s, ms int) int {
 }
 
 // Millisecond2Time 根据毫秒值计算出对应的 时，分，秒，毫秒形式的时间值
-func Millisecond2Time(millisecond int) (h, m, s, ms int) {
+func millisecond2Time(millisecond int) (h, m, s, ms int) {
 	ms = millisecond % 1000
 
 	s = millisecond / 1000

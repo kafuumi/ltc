@@ -1,11 +1,10 @@
-package main
+package lrc2srt
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 type CloudLyricBase struct {
@@ -38,15 +37,15 @@ func Get163Lyric(id string) (lyric, tLyric string) {
 	req, _ := http.NewRequest("GET", api, nil)
 	//必须设置Referer,否则会请求失败
 	req.Header.Add("Referer", "https://music.163.com")
-	req.Header.Add("User-Agent", ChromeUA)
+	req.Header.Add("User-Agent", CHROME_UA)
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("网络错误:%v\n", err)
-		os.Exit(1)
+		panic("网络异常，获取失败。")
 	}
 	if resp == nil || resp.StatusCode != http.StatusOK {
 		fmt.Printf("网络请求失败，状态码为：%d\n", resp.StatusCode)
-		os.Exit(1)
+		panic("获取失败，未能正确获取到数据")
 	}
 	defer resp.Body.Close()
 
@@ -54,7 +53,7 @@ func Get163Lyric(id string) (lyric, tLyric string) {
 	err = json.NewDecoder(resp.Body).Decode(&cloudLyric)
 	if cloudLyric.Sgc {
 		fmt.Printf("获取歌词失败，返回的结果为：%+v，请检查id是否正确\n", cloudLyric)
-		os.Exit(1)
+		panic("id错误，获取歌词失败")
 	}
 	return cloudLyric.Lrc.Lyric, cloudLyric.TLyric.Lyric
 }

@@ -1,11 +1,11 @@
-package lrc2srt
+package ltc
 
 import (
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/Hami-Lemon/lrc2srt/glist"
+	"github.com/Hami-Lemon/ltc/glist"
 )
 
 type LRCNode struct {

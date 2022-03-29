@@ -1,4 +1,4 @@
-module github.com/Hami-Lemon/lrc2srt
+module github.com/Hami-Lemon/ltc
 
 go 1.18
 

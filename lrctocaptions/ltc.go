@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	l2s "github.com/Hami-Lemon/lrc2srt"
+	"github.com/Hami-Lemon/ltc"
 	"github.com/jessevdk/go-flags"
 )
 
@@ -39,7 +39,7 @@ func main() {
 	}
 	//显示版本信息
 	if opt.Version {
-		fmt.Printf("LrcToSrt(lts) version: %s\n", VERSION)
+		fmt.Printf("LrcToCaptions(ltc) version: %s\n", VERSION)
 		return
 	}
 	//获取保存的文件名
@@ -51,9 +51,9 @@ func main() {
 	var lyric, tranLyric string
 	if opt.Id != "" {
 		if opt.Source != "163" {
-			lyric, tranLyric = l2s.GetQQLyric(opt.Id)
+			lyric, tranLyric = ltc.GetQQLyric(opt.Id)
 		} else {
-			lyric, tranLyric = l2s.Get163Lyric(opt.Id)
+			lyric, tranLyric = ltc.Get163Lyric(opt.Id)
 		}
 		//下载歌词
 		if opt.Download {
@@ -64,9 +64,9 @@ func main() {
 			} else if !strings.HasSuffix(o, ".lrc") {
 				o += ".lrc"
 			}
-			l2s.WriteFile(o, lyric)
+			ltc.WriteFile(o, lyric)
 			if tranLyric != "" {
-				l2s.WriteFile("tran_"+o, tranLyric)
+				ltc.WriteFile("tran_"+o, tranLyric)
 			}
 			fmt.Println("下载歌词完成！")
 			return
@@ -77,7 +77,7 @@ func main() {
 			fmt.Println("Error: 不支持的格式，目前只支持lrc歌词文件。")
 			os.Exit(1)
 		}
-		lyric = l2s.ReadFile(opt.Input)
+		lyric = ltc.ReadFile(opt.Input)
 		if lyric == "" {
 			fmt.Println("获取歌词失败，文件内容为空。")
 			os.Exit(1)
@@ -86,17 +86,17 @@ func main() {
 		fmt.Println("Error: 请指定需要转换的歌词。")
 		os.Exit(1)
 	}
-	lrc, lrcT := l2s.ParseLRC(lyric), l2s.ParseLRC(tranLyric)
-	srt, srtT := l2s.LrcToSrt(lrc), l2s.LrcToSrt(lrcT)
+	lrc, lrcT := ltc.ParseLRC(lyric), ltc.ParseLRC(tranLyric)
+	srt, srtT := ltc.LrcToSrt(lrc), ltc.LrcToSrt(lrcT)
 	if srtT != nil {
-		var mode l2s.SRTMergeMode
+		var mode ltc.SRTMergeMode
 		switch opt.Mode {
 		case 1:
-			mode = l2s.SRT_MERGE_MODE_STACK
+			mode = ltc.SRT_MERGE_MODE_STACK
 		case 2:
-			mode = l2s.SRT_MERGE_MODE_UP
+			mode = ltc.SRT_MERGE_MODE_UP
 		case 3:
-			mode = l2s.SRT_MERGE_MODE_BOTTOM
+			mode = ltc.SRT_MERGE_MODE_BOTTOM
 		}
 		srt.Merge(srtT, mode)
 	}
@@ -128,7 +128,7 @@ func main() {
 		//如果是相对路径，父目录即是当前运行路径
 		dir, er := os.Getwd()
 		if er == nil {
-			name = dir + name
+			name = dir + string(os.PathSeparator) + name
 		}
 	}
 	fmt.Printf("保存结果为：%s\n", name)

@@ -1,4 +1,4 @@
-package lrc2srt
+package ltc
 
 import (
 	"encoding/json"

@@ -1,9 +1,9 @@
-package lrc2srt
+package ltc
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/Hami-Lemon/lrc2srt/glist"
+	"github.com/Hami-Lemon/ltc/glist"
 	"io"
 	"os"
 	"path/filepath"

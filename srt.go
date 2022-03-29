@@ -6,6 +6,7 @@ import (
 	"github.com/Hami-Lemon/lrc2srt/glist"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -111,41 +112,43 @@ func (s *SRT) Merge(other *SRT, mode SRTMergeMode) {
 //可以类比为合并两个有序链表,
 //算法参考:https://leetcode-cn.com/problems/merge-two-sorted-lists/solution/he-bing-liang-ge-you-xu-lian-biao-by-leetcode-solu/
 func (s *SRT) mergeStack(other *SRT) {
-	ls, _ := s.Content.(*glist.LinkedList[*SRTContent])
-	lo, _ := other.Content.(*glist.LinkedList[*SRTContent])
-	lhs, lho := ls.First, lo.First
-	//临时的空结点
-	preHead := &glist.Node[*SRTContent]{}
-	prev := preHead
-
-	for lhs != nil && lho != nil {
-		//副本结点,从而不改变other对象中的内容
-		oCopy := lho.Clone()
-
-		if lhs.Element.Start <= oCopy.Element.Start {
-			prev.Next = lhs
-			lhs.Prev = prev
-			lhs = lhs.Next
+	sIt, oIt := s.Content.Iterator(), other.Content.Iterator()
+	//不对原来的链表做修改，合并的信息保存在一个新的链表中
+	merge := glist.NewLinkedList[*SRTContent]()
+	var sNode, oNode *SRTContent
+	//分别获取两个链表的第一个元素
+	if sIt.Has() && oIt.Has() {
+		sNode, oNode = sIt.Next(), oIt.Next()
+	}
+	//开始迭代
+	for sIt.Has() && oIt.Has() {
+		//小于等于，当相等时，s中的元素添加进去
+		if sNode.Start <= oNode.Start {
+			merge.Append(sNode)
+			sNode = sIt.Next()
 		} else {
-			prev.Next = oCopy
-			oCopy.Prev = prev
-			lho = lho.Next
+			merge.Append(oNode)
+			oNode = oIt.Next()
 		}
-		prev = prev.Next
 	}
-	if lhs == nil {
-		//如果剩下的内容是other中的,则依次迭代复制到s中
-		for n := lho; n != nil; n = n.Next {
-			c := n.Clone()
-			prev.Next = c
-			c.Prev = prev
-			prev = prev.Next
+	if sNode != nil && oNode != nil {
+		//循环退出时，sNode和oNode指向的元素还没有进行比较，会导致缺少两条数据
+		if sNode.Start <= oNode.Start {
+			merge.Append(sNode)
+			merge.Append(oNode)
+		} else {
+			merge.Append(oNode)
+			merge.Append(sNode)
 		}
-	} else {
-		prev.Next = lhs
 	}
-	ls.First = preHead.Next
-	ls.First.Prev = nil
+	//剩下的元素添加到链表中，最多只有一个链表有剩余元素
+	for sIt.Has() {
+		merge.Append(sIt.Next())
+	}
+	for oIt.Has() {
+		merge.Append(oIt.Next())
+	}
+	s.Content = merge
 }
 
 func (s *SRT) mergeUp(other *SRT) {
@@ -169,6 +172,10 @@ func (s *SRT) mergeBottom(other *SRT) {
 func (s *SRT) WriteFile(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
+		//不存在对应文件夹
+		if os.IsNotExist(err) {
+			panic("文件夹不存在:" + filepath.Dir(path))
+		}
 		return err
 	}
 	err = s.Write(f)

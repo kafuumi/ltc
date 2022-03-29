@@ -7,8 +7,8 @@ import (
 )
 
 func checkListElement[T comparable](list *LinkedList[T], items []T, t *testing.T) {
-	if list.Len != uint(len(items)) {
-		t.Errorf("list Len= %d, items Len = %d.", list.Len, len(items))
+	if list.len != uint(len(items)) {
+		t.Errorf("list len= %d, items len = %d.", list.len, len(items))
 	}
 	i := 0
 	for it := list.Iterator(); it.Has(); {
@@ -153,7 +153,7 @@ func TestLinkedList_Remove(t *testing.T) {
 		values  []int
 	}{
 		{"empty list", 0, 0, false, nil},
-		{"index gather than Len", 0, 1, false, nil},
+		{"index gather than len", 0, 1, false, nil},
 		{"1 value list:delete index 0", 1, 0, true, []int{}},
 		{"10 value list:delete index 0", 10, 0, true, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}},
 		{"10 value list:delete index 5", 10, 5, true, []int{0, 1, 2, 3, 4, 6, 7, 8, 9}},

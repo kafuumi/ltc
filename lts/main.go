@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ type Option struct {
 
 const (
 	// VERSION 当前版本
-	VERSION = `"0.2.3" (build 2022.03.28)`
+	VERSION = `"0.2.4" (build 2022.03.29)`
 )
 
 var (
@@ -31,13 +32,14 @@ var (
 
 func main() {
 	//TODO 支持转ass文件
+	//TODO 酷狗的krc支持逐字，更利于打轴 https://shansing.com/read/392/
 	args, err := flags.Parse(&opt)
 	if err != nil {
 		os.Exit(0)
 	}
 	//显示版本信息
 	if opt.Version {
-		fmt.Printf("LrcToSrt(lts) version %s\n", VERSION)
+		fmt.Printf("LrcToSrt(lts) version: %s\n", VERSION)
 		return
 	}
 	//获取保存的文件名
@@ -121,4 +123,13 @@ func main() {
 		fmt.Println("出现错误,保存失败")
 		panic(err.Error())
 	}
+	//如果是相对路径，则获取其对应的绝对路径
+	if !filepath.IsAbs(name) {
+		//如果是相对路径，父目录即是当前运行路径
+		dir, er := os.Getwd()
+		if er == nil {
+			name = dir + name
+		}
+	}
+	fmt.Printf("保存结果为：%s\n", name)
 }

@@ -122,7 +122,7 @@ func SplitLyric(src []string) *LRCNode {
 	}
 	lrcNode := &LRCNode{
 		time:    time2Millisecond(minute, second, millisecond),
-		content: content,
+		content: strings.TrimSpace(content), //去掉前后的空格
 	}
 	return lrcNode
 }

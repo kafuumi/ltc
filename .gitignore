@@ -89,4 +89,5 @@ fabric.properties
 # vendor/
 *.srt
 *.lrc
+*.ass
 /temp

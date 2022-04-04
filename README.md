@@ -2,12 +2,13 @@
 
 [![Build](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml)
 
-用于将LRC歌词文件转换成SRT字幕文件
+用于将LRC歌词文件转换成ASS、SRT字幕文件
 
 ## 功能
 - [x] lrc文件转换成srt文件
-- [x] 从网易云音乐或QQ音乐上获取歌词，并转换成srt文件
-- [x] 从网易云音乐或QQ音乐上下载歌词
+- [x] lrc文件转换成ass文件
+- [x] 从网易云音乐或QQ音乐上获取歌词，并转换。
+- [x] 从网易云音乐或QQ音乐上下载歌词。
 
 ## 下载
 
@@ -16,21 +17,25 @@
 
 ## 开始使用
 
-```
-Usage:
-  D:\ProgrameStudy\lrc2srt\lts.exe [OPTIONS]
+```text
+LrcToCaptions(ltc) 将LRC歌词文件转换成字幕文件。
+ltc version: "0.3.4" (build 2022.03.30)
 
-Application Options:
-  -i, --id=                歌曲的id，网易云和QQ音乐均可。
-  -I, --input=             需要转换的LRC文件路径。
-  -s, --source=[163|qq|QQ] 当设置id时有效，指定从网易云（163）还是QQ音乐（qq）上获取歌词。
-                           (default: 163)
-  -d, --download           只下载歌词，而不进行解析。
-  -m, --mode=[1|2|3]       原文和译文的排列模式,可选值有：[1] [2] [3] (default: 1)
-  -v, --version            获取版本信息
+用法：ltc [options] OutputFile
 
-Help Options:
-  -h, --help               Show this help message
+options:
+
+  -d    设置该选项时，只下载歌词，而无需转换。
+  -f value
+        转换成的字幕文件格式，可选值：ass(默认),srt
+  -i string
+        歌词来源，可以是歌词对应的歌曲id，也可以是歌词文件
+  -m value
+        设置歌词原文和译文的合并模式，可选值：1(默认),2,3。
+  -s string
+        选择从网易云还是QQ音乐上获取歌词，可选值：163(默认)，qq。 (default "163")
+  -v    获取当前程序版本信息。
+  -h	显示帮助信息。
 ```
 
 ### 获取歌曲id

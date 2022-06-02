@@ -1,4 +1,4 @@
-# LrcToSrt
+# LrcToCaptons
 
 [![Build](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/Hami-Lemon/LrcToSrt/actions/workflows/go.yml)
 

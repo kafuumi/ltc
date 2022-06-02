@@ -150,3 +150,18 @@ lts -i 003FJlVU1rxjv8 -m 2 -s qq "ふわふわ时间.srt"
 ## 结束时间处理策略
 
 因为在LRC文件中，并不包含一句歌词的结束时间，所以在转换成SRT文件时，处理策略为，**一句歌词的结束时间为下一句歌词的开始时间，最后一句歌词的结束时间为其`开始时间+10秒`**，所以在打轴时，对进入间奏的地方应该手动调整歌词的结束时间。
+
+## 源码编译
+
+### 环境需求
+
+- [Go 1.18+](https://golang.google.cn/dl/)
+
+### 编译
+
+```bash
+git clone https://github.com/Hami-Lemon/ltc.git
+cd ./ltc/lrctocaptions
+go build -o ltc.exe .
+```
+
